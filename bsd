@@ -1,0 +1,421 @@
+Exp - 7
+
+
+
+app.component.ts
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent {
+  title = 'studentApp';
+  name = "";
+  students: string[] = [];
+  totalSeats = 30;
+
+
+  join() {
+    if (this.name != "") {
+      this.students.push(this.name);
+      this.name = "";
+    }
+  }
+
+
+  getSeats() {
+    return "🟩".repeat(this.students.length) +
+           "⬜".repeat(this.totalSeats - this.students.length);
+  }
+}
+
+
+==========================================================================================
+
+app.component.html
+
+<div class="container" >
+
+
+  <h1>Register Now!!</h1>
+
+  <input type="text"
+         placeholder="Enter Student Name"
+         [(ngModel)]="name"
+         required>
+
+  <button (click)="join()">Join</button>
+
+  <hr>
+
+  <h1 *ngIf="students.length > 0">
+    Welcome {{students[students.length-1]}}
+  </h1>
+
+  <hr>
+
+  <h2>Registered Students</h2>
+
+  <ul>
+    <li *ngFor="let s of students">
+      {{s}}
+    </li>
+  </ul>
+
+  <hr>
+
+  <h2>Registration Progress</h2>
+
+  <p>{{students.length}} / {{totalSeats}} Students Registered</p>
+
+  <p>Available Seats: {{totalSeats-students.length}}</p>
+
+
+</div>
+
+
+
+commands:
+
+ng new studentapp
+
+to run : ng serve
+
+
+
+
+================================================================
+
+
+
+EXP - 8 
+
+
+command
+
+ng new moivesystem
+ng g c home
+ng g c moive-card
+ng g s movie 
+
+
+to run : ng serve
+
+
+
+add formsmodule in app.modules.ts
+add path in routes in app-routing.modules.ts
+
+app.component.html
+<router-outlet></router-outlet>
+
+
+movie.service.ts
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MovieService {
+
+  movies: any[] = [];
+
+  addMovie(movie: any) {
+    this.movies.push(movie);
+  }
+
+  getMovies() {
+    return this.movies;
+  }
+}
+
+
+home.component.ts
+
+import { Component } from '@angular/core';
+import { MovieService } from '../movie.service';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html'
+})
+export class HomeComponent {
+
+  name = '';
+  rating = 0;
+  review = '';
+
+  constructor(private service: MovieService) {}
+
+  addReview() {
+    if (this.name && this.rating >= 1 &&
+        this.rating <= 5 && this.review) {
+
+      this.service.addMovie({
+        name: this.name,
+        rating: this.rating,
+        review: this.review
+      });
+
+      this.name = '';
+      this.rating = 0;
+      this.review = '';
+    }
+  }
+
+  get movies() {
+    return this.service.getMovies();
+  }
+}
+
+
+home.component.html
+
+<div class="container">
+
+  <h1>🎬 Movie Review System</h1>
+
+  <div class="form-box">
+
+    <h2>Add Movie Review</h2>
+
+    <input
+      type="text"
+      placeholder="Movie Name"
+      [(ngModel)]="name"
+      required>
+
+    <input
+      type="number"
+      placeholder="Rating (1-5)"
+      [(ngModel)]="rating"
+      min="1"
+      max="5">
+
+    <textarea
+      placeholder="Write your review"
+      [(ngModel)]="review">
+    </textarea>
+
+    <button (click)="addReview()">
+      Add Review
+    </button>
+
+  </div>
+
+  <h2 class="review-title">Movie Reviews</h2>
+
+  <div class="reviews">
+
+    <app-movie-card
+      *ngFor="let movie of movies"
+      [movie]="movie">
+    </app-movie-card>
+
+  </div>
+
+</div>
+
+
+movie-card.component.ts
+
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-movie-card',
+  templateUrl: './movie-card.component.html'
+})
+export class MovieCardComponent {
+  @Input() movie: any;
+}
+
+movie-card.component.html
+
+
+<div class="card">
+
+  <h3>🎬 {{ movie.name }}</h3>
+
+  <p class="rating">
+    ⭐ {{ movie.rating }} / 5
+  </p>
+
+  <p>{{ movie.review }}</p>
+
+</div>
+
+
+===================================================================
+
+
+Exp 9
+
+npm create vite@latest todo-app -- --template react
+cd todo-app
+npm run dev
+
+
+
+App.jsx
+
+
+import React, { useState } from 'react';
+
+export default function App() {
+  const [tasks, setTasks] = useState([
+    { id: 1, text: 'Learn React', completed: false },
+    { id: 2, text: 'Practice coding', completed: true }
+  ]);
+
+  const [input, setInput] = useState('');
+
+  const addTask = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    setTasks([...tasks, {
+      id: Date.now(),
+      text: input,
+      completed: false
+    }]);
+
+    setInput('');
+  };
+
+  const toggleTask = (id) => {
+    setTasks(tasks.map(t =>
+      t.id === id ? { ...t, completed: !t.completed } : t
+    ));
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter(t => t.id !== id));
+  };
+
+  return (
+    <div>
+      <h1>To-Do List</h1>
+
+      <form onSubmit={addTask}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Enter task"
+        />
+        <button>Add</button>
+      </form>
+
+      {tasks.length === 0 ? (
+        <p>No tasks available</p>
+      ) : (
+        <ul>
+          {tasks.map(t => (
+            <li key={t.id}>
+              <input
+                type="checkbox"
+                checked={t.completed}
+                onChange={() => toggleTask(t.id)}
+              />
+              <span>{t.text}</span>
+              <button onClick={() => deleteTask(t.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export default App;
+
+
+===============================================
+
+
+exp - 10 
+
+
+
+npm create vite@latest signup-app -- --template react
+cd signup-app
+npm install
+npm run dev
+
+
+
+App.jsx
+
+
+import { useState } from "react";
+import "./App.css";
+
+function App() {
+  const [state, setState] = useState('login');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (email.trim() === "" || passwird.trim() === "") {
+      alert("PLease fill in all fields");
+      return;
+    }
+    alert(`Successfully logged in with email: ${email} !!`);
+  };
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    if (email.trim() === "" || passwird.trim() === "") {
+      alert("PLease fill in all fields");
+      return;
+    }
+    alert(`Successfully logged in with email: ${email} !!`);
+  };
+
+  return (
+    <>
+      <input
+        type="email"
+        placeholder="Enter Email"
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+        }}
+      />
+      {state === "login" ? (
+        <input
+          type="text"
+          placeholder="Enter Name"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
+      ) : null}
+      <input
+        type="password"
+        placeholder="Enter Password"
+        value={password}
+        onChange={(e) => {
+          setPassword(e.target.value);
+        }}
+      />
+      {state === "signup" ? (
+        <button onClick={handleLogin}>Login</button>
+      ) : (
+        <button onClick={handleSignUp}>Sign Up</button>
+      )}
+      <p>{state === "signup" ? "Dont have an account?" : "Already have an account?"}</p>
+      <button
+        onClick={() => {
+          setState(state === "login" ? "signup" : "login");
+        }}
+      >
+        {state === "signup" ? "click to Sign Up" : "Click to login"}
+      </button>
+    </>
+  );
+}
